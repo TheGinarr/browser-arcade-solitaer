@@ -13,128 +13,259 @@
    ============================================================ */
 
 /* Für Bildschirmleser sichtbar, für Augen unsichtbar (Live-Region) */
-.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
 /* .knopf setzt display; ohne diese Regel würde das hidden-Attribut ignoriert */
-.knopf[hidden]{display:none}
+.knopf[hidden] {
+  display: none;
+}
 
 /* ---------- Zieh-Modus-Umschalter (Vorbild: Minesweeper-Stufen) ---------- */
-.stufen-leiste{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px}
-.stufen-leiste .knopf{padding:9px 16px;line-height:1.25;text-align:left}
-.stufen-leiste .knopf small{display:block;margin-top:2px;font-weight:400;font-size:.72rem;color:var(--mut)}
-/* aria-pressed steuert Optik UND Barrierefreiheit zugleich */
-.stufen-leiste .knopf[aria-pressed="true"]{
-  border-color:var(--ak);color:var(--ak);
-  box-shadow:0 0 16px color-mix(in srgb,var(--ak) 30%,transparent);
+.stufen-leiste {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
 }
-.stufen-leiste .knopf[aria-pressed="true"] small{color:inherit;opacity:.8}
+.stufen-leiste .knopf {
+  padding: 9px 16px;
+  line-height: 1.25;
+  text-align: left;
+}
+.stufen-leiste .knopf small {
+  display: block;
+  margin-top: 2px;
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--mut);
+}
+/* aria-pressed steuert Optik UND Barrierefreiheit zugleich */
+.stufen-leiste .knopf[aria-pressed="true"] {
+  border-color: var(--ak);
+  color: var(--ak);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--ak) 30%, transparent);
+}
+.stufen-leiste .knopf[aria-pressed="true"] small {
+  color: inherit;
+  opacity: 0.8;
+}
 
-.aktionen-leiste{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+.aktionen-leiste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 12px;
+}
 
 /* ---------- Bühne und Tisch ---------- */
 /* Zur Not (sehr schmale Handys) darf die Bühne seitlich scrollen. */
-.buehne{overflow-x:auto;overflow-y:hidden;padding:12px}
+.buehne {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 12px;
+}
 
 /* --kw = Kartenbreite. clamp(min, bevorzugt, max): wächst mit der Bildschirmbreite,
    so dass die 7 Spalten (7,6 Kartenbreiten) bei 375 px gerade eben passen. */
-.tisch{
-  --kw:clamp(36px,calc((100vw - 96px) / 7.7),88px);
-  position:relative;
-  width:calc(var(--kw) * 7.6);
-  height:calc(var(--kw) * var(--hoehe,5.2));   /* --hoehe setzt game.js (wächst bei langen Spalten) */
-  margin:0 auto;
-  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+.tisch {
+  --kw: clamp(36px, calc((100vw - 96px) / 7.7), 88px);
+  position: relative;
+  width: calc(var(--kw) * 7.6);
+  height: calc(
+    var(--kw) * var(--hoehe, 5.2)
+  ); /* --hoehe setzt game.js (wächst bei langen Spalten) */
+  margin: 0 auto;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
-.tisch.kaskade{overflow:hidden}                /* Siegeskaskade: Karten verschwinden am Rand */
+.tisch.kaskade {
+  overflow: hidden;
+} /* Siegeskaskade: Karten verschwinden am Rand */
 
 /* ---------- Leere Felder (Talon, Ablage, Ablagestapel, Spalten) ---------- */
-.fach{
-  position:absolute;left:0;top:0;z-index:0;
-  width:var(--kw);height:calc(var(--kw) * 1.4);
-  transform:translate(calc(var(--x,0) * var(--kw)),calc(var(--y,0) * var(--kw)));
-  border-radius:calc(var(--kw) * .09);
-  border:2px dashed color-mix(in srgb,var(--gold) 26%,var(--line));
-  display:grid;place-items:center;
-  font:400 calc(var(--kw) * .34) var(--pixel);color:color-mix(in srgb,var(--gold) 35%,var(--line));
-  touch-action:manipulation;
-  transition:border-color var(--schnell),box-shadow var(--schnell);
+.fach {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  width: var(--kw);
+  height: calc(var(--kw) * 1.4);
+  transform: translate(calc(var(--x, 0) * var(--kw)), calc(var(--y, 0) * var(--kw)));
+  border-radius: calc(var(--kw) * 0.09);
+  border: 2px dashed color-mix(in srgb, var(--gold) 26%, var(--line));
+  display: grid;
+  place-items: center;
+  font: 400 calc(var(--kw) * 0.34) var(--pixel);
+  color: color-mix(in srgb, var(--gold) 35%, var(--line));
+  touch-action: manipulation;
+  transition:
+    border-color var(--schnell),
+    box-shadow var(--schnell);
 }
-.fach[data-art="fundament"]::after{content:"A"}
-.fach[data-art="talon"]{cursor:pointer}
-.fach[data-art="talon"]::after{content:"\21BB\FE0E";font-family:var(--sans)}   /* ↻ = neuer Durchlauf */
-.fach[data-art="ablage"]{border-style:dotted}
-.fach.ziel{border-style:solid;border-color:var(--ak);box-shadow:0 0 18px color-mix(in srgb,var(--ak) 45%,transparent)}
+.fach[data-art="fundament"]::after {
+  content: "A";
+}
+.fach[data-art="talon"] {
+  cursor: pointer;
+}
+.fach[data-art="talon"]::after {
+  content: "\21BB\FE0E";
+  font-family: var(--sans);
+} /* ↻ = neuer Durchlauf */
+.fach[data-art="ablage"] {
+  border-style: dotted;
+}
+.fach.ziel {
+  border-style: solid;
+  border-color: var(--ak);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--ak) 45%, transparent);
+}
 
 /* ---------- Karte: Position -> Dreh-Element -> zwei Flächen ---------- */
-.spielkarte{
-  position:absolute;left:0;top:0;
-  width:var(--kw);height:calc(var(--kw) * 1.4);
-  transform:translate(calc(var(--x,0) * var(--kw)),calc(var(--y,0) * var(--kw)));
-  transition:transform .3s cubic-bezier(.33,1,.68,1);
-  perspective:700px;
-  touch-action:manipulation;               /* kein Doppeltipp-Zoom, Scrollen bleibt erlaubt */
+.spielkarte {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--kw);
+  height: calc(var(--kw) * 1.4);
+  transform: translate(calc(var(--x, 0) * var(--kw)), calc(var(--y, 0) * var(--kw)));
+  transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+  perspective: 700px;
+  touch-action: manipulation; /* kein Doppeltipp-Zoom, Scrollen bleibt erlaubt */
 }
 /* Nur anfassbare Karten sperren das Scrollen – sonst würde der Finger die Seite statt der Karte ziehen */
-.spielkarte.ziehbar{touch-action:none;cursor:grab}
-.spielkarte.zieht{transition:none;cursor:grabbing;filter:drop-shadow(0 8px 12px #000b)}
-
-.dreher{
-  position:absolute;inset:0;
-  transform-style:preserve-3d;
-  transition:transform .32s cubic-bezier(.33,1,.68,1);
+.spielkarte.ziehbar {
+  touch-action: none;
+  cursor: grab;
 }
-.spielkarte.offen .dreher{transform:rotateY(180deg)}
+.spielkarte.zieht {
+  transition: none;
+  cursor: grabbing;
+  filter: drop-shadow(0 8px 12px #000b);
+}
 
-.seite{
-  position:absolute;inset:0;
-  border-radius:calc(var(--kw) * .09);
-  backface-visibility:hidden;-webkit-backface-visibility:hidden;
-  box-shadow:0 1px 2px #0006;
+.dreher {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.32s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.spielkarte.offen .dreher {
+  transform: rotateY(180deg);
+}
+
+.seite {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--kw) * 0.09);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 1px 2px #0006;
 }
 /* Rückseite: Muster aus CSS-Verläufen, keine Bilder */
-.seite.rueck{
-  background:repeating-linear-gradient(45deg,#1b1b3a 0 5px,#252552 5px 10px);
-  border:2px solid color-mix(in srgb,var(--gold) 55%,var(--line));
-  box-shadow:inset 0 0 0 3px var(--panel),0 1px 2px #0006;
+.seite.rueck {
+  background: repeating-linear-gradient(45deg, #1b1b3a 0 5px, #252552 5px 10px);
+  border: 2px solid color-mix(in srgb, var(--gold) 55%, var(--line));
+  box-shadow:
+    inset 0 0 0 3px var(--panel),
+    0 1px 2px #0006;
 }
 /* Vorderseite: ab Werk um 180° gedreht; zusammen mit dem Dreh-Element ergibt das 360° */
-.seite.vorn{
-  transform:rotateY(180deg);
-  background:linear-gradient(160deg,#f6f6fc,#d3d6ea);
-  color:#14141f;                            /* Pik, Kreuz */
-  font-family:var(--sans);font-weight:700;
+.seite.vorn {
+  transform: rotateY(180deg);
+  background: linear-gradient(160deg, #f6f6fc, #d3d6ea);
+  color: #14141f; /* Pik, Kreuz */
+  font-family: var(--sans);
+  font-weight: 700;
 }
-.seite.vorn.rot{color:#d1203c}              /* Herz, Karo */
+.seite.vorn.rot {
+  color: #d1203c;
+} /* Herz, Karo */
 
 /* Ecke: "10♠" in einer Zeile. Das spart Höhe, weil überlappende Karten nur ihren oberen Streifen zeigen. */
-.ecke{
-  position:absolute;top:3%;left:7%;
-  display:flex;align-items:baseline;gap:.04em;
-  font-size:calc(var(--kw) * .3);line-height:1;
+.ecke {
+  position: absolute;
+  top: 3%;
+  left: 7%;
+  display: flex;
+  align-items: baseline;
+  gap: 0.04em;
+  font-size: calc(var(--kw) * 0.3);
+  line-height: 1;
 }
-.ecke .sym{font-size:.95em}
-.mitte{
-  position:absolute;inset:0;top:26%;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  line-height:1;
+.ecke .sym {
+  font-size: 0.95em;
 }
-.mitte .gross{font-size:calc(var(--kw) * .5)}
-.mitte.bild .buchstabe{font-size:calc(var(--kw) * .42)}
-.mitte.bild .gross{font-size:calc(var(--kw) * .3);margin-top:.1em}
+.mitte {
+  position: absolute;
+  inset: 0;
+  top: 26%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.mitte .gross {
+  font-size: calc(var(--kw) * 0.5);
+}
+.mitte.bild .buchstabe {
+  font-size: calc(var(--kw) * 0.42);
+}
+.mitte.bild .gross {
+  font-size: calc(var(--kw) * 0.3);
+  margin-top: 0.1em;
+}
 
 /* Karten, die gerade gleiten, schweben über den anderen (z-index setzt game.js) */
-.spielkarte.unterwegs .seite{box-shadow:0 6px 14px #000a}
+.spielkarte.unterwegs .seite {
+  box-shadow: 0 6px 14px #000a;
+}
 /* ...und sind für Zeiger "durchsichtig": ein schneller zweiter Klick auf den Talon
    trifft so die Karte darunter und nicht die gerade wegfliegende. */
-.spielkarte.unterwegs{pointer-events:none}
+.spielkarte.unterwegs {
+  pointer-events: none;
+}
 
 /* ---------- Hervorhebungen ---------- */
-.spielkarte.gewaehlt .seite.vorn{box-shadow:0 0 0 3px var(--cyan),0 0 16px color-mix(in srgb,var(--cyan) 60%,transparent)}
-.spielkarte.ziel-karte .seite.vorn{box-shadow:0 0 0 3px var(--ak),0 0 16px color-mix(in srgb,var(--ak) 55%,transparent)}
+.spielkarte.gewaehlt .seite.vorn {
+  box-shadow:
+    0 0 0 3px var(--cyan),
+    0 0 16px color-mix(in srgb, var(--cyan) 60%, transparent);
+}
+.spielkarte.ziel-karte .seite.vorn {
+  box-shadow:
+    0 0 0 3px var(--ak),
+    0 0 16px color-mix(in srgb, var(--ak) 55%, transparent);
+}
 
-.steuerung p{margin:0}
-@media (max-width:520px){
-  .hud{gap:8px}
-  .hud-feld{min-width:0;flex:1 1 0;padding:8px 6px}
-  .hud-feld .wert{font-size:.85rem}
-  .stufen-leiste .knopf{flex:1 1 140px}
+.steuerung p {
+  margin: 0;
+}
+@media (max-width: 520px) {
+  .hud {
+    gap: 8px;
+  }
+  .hud-feld {
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 8px 6px;
+  }
+  .hud-feld .wert {
+    font-size: 0.85rem;
+  }
+  .stufen-leiste .knopf {
+    flex: 1 1 140px;
+  }
 }

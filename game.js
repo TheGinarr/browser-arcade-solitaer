@@ -39,26 +39,26 @@ import { bewegungReduziert, toplisteAnzeigen, gameOverDialog } from "./assets/ui
    Konstanten
    ------------------------------------------------------------ */
 
-const SPIEL = "solitaer";                 // Speicherbereich für Spielstand + Einstellungen
-const MODI = [1, 3];                      // erlaubte Zieh-Modi (Karten pro Ziehen)
-const MAX_SEKUNDEN = 5999;                // 99:59 – mehr kann "mm:ss" nicht zeigen
-const DOPPELTIPP_MS = 380;                // max. Abstand zweier Tipps für "Doppelklick"
-const ZIEH_SCHWELLE_PX = 6;               // ab so vielen Pixeln Bewegung wird aus Tippen ein Ziehen
-const UNTERWEGS_MS = 380;                 // so lange liegt eine gleitende Karte über den anderen
-const KASKADE_ABSTAND_MS = 70;            // Sieg: alle 70 ms startet die nächste Karte
+const SPIEL = "solitaer"; // Speicherbereich für Spielstand + Einstellungen
+const MODI = [1, 3]; // erlaubte Zieh-Modi (Karten pro Ziehen)
+const MAX_SEKUNDEN = 5999; // 99:59 – mehr kann "mm:ss" nicht zeigen
+const DOPPELTIPP_MS = 380; // max. Abstand zweier Tipps für "Doppelklick"
+const ZIEH_SCHWELLE_PX = 6; // ab so vielen Pixeln Bewegung wird aus Tippen ein Ziehen
+const UNTERWEGS_MS = 380; // so lange liegt eine gleitende Karte über den anderen
+const KASKADE_ABSTAND_MS = 70; // Sieg: alle 70 ms startet die nächste Karte
 
 const toplisteKey = (modus) => `${SPIEL}-${modus}`;
 
 /* Layout in "Kartenbreiten" (kw). Eine Karte ist 1 kw breit und 1,4 kw hoch.
    CSS rechnet daraus Pixel (--kw ist Kartenbreite in px), siehe spiel.css. */
-export const SPALTEN_ABSTAND = 1.1;       // Abstand von Spaltenmitte zu Spaltenmitte
-export const BREITE = 6 * SPALTEN_ABSTAND + 1;   // Gesamtbreite des Tischs
-export const KARTE_H = 1.4;               // Kartenhöhe
-export const ZEILE2_Y = 1.6;              // Oberkante der Tableau-Spalten
-export const STUFE_ZU = 0.13;             // vertikaler Versatz verdeckter Karten
-export const STUFE_OFFEN = 0.34;          // vertikaler Versatz offener Karten
-export const FAECHER_X = 0.3;             // Versatz der aufgefächerten Ablage-Karten
-const MIN_HOEHE = 5.2;                    // Mindesthöhe des Tischs (wächst bei langen Spalten)
+export const SPALTEN_ABSTAND = 1.1; // Abstand von Spaltenmitte zu Spaltenmitte
+export const BREITE = 6 * SPALTEN_ABSTAND + 1; // Gesamtbreite des Tischs
+export const KARTE_H = 1.4; // Kartenhöhe
+export const ZEILE2_Y = 1.6; // Oberkante der Tableau-Spalten
+export const STUFE_ZU = 0.13; // vertikaler Versatz verdeckter Karten
+export const STUFE_OFFEN = 0.34; // vertikaler Versatz offener Karten
+export const FAECHER_X = 0.3; // Versatz der aufgefächerten Ablage-Karten
+const MIN_HOEHE = 5.2; // Mindesthöhe des Tischs (wächst bei langen Spalten)
 
 const FARBEN = ["♠", "♥", "♦", "♣"];
 const FARBNAMEN = ["Pik", "Herz", "Karo", "Kreuz"];
@@ -74,7 +74,10 @@ export const farbeVon = (id) => Math.floor(id / 13);
 /** Rang einer Karte: 1 (Ass) bis 13 (König). */
 export const rangVon = (id) => (id % 13) + 1;
 /** Herz und Karo sind rot, Pik und Kreuz schwarz. */
-export const istRot = (id) => { const f = farbeVon(id); return f === 1 || f === 2; };
+export const istRot = (id) => {
+  const f = farbeVon(id);
+  return f === 1 || f === 2;
+};
 /** Lesbarer Name für Bildschirmleser, z. B. "Herz 7". */
 export const kartenName = (id) => `${FARBNAMEN[farbeVon(id)]} ${RANGNAMEN[rangVon(id) - 1]}`;
 
@@ -99,13 +102,16 @@ export function neuesBlatt(modus, zufall = Math.random) {
   // Spalte s bekommt s+1 Karten; davon sind s verdeckt, die oberste liegt offen.
   const spalten = [];
   let pos = 0;
-  for (let s = 0; s < 7; s++) { spalten.push(deck.slice(pos, pos + s + 1)); pos += s + 1; }
+  for (let s = 0; s < 7; s++) {
+    spalten.push(deck.slice(pos, pos + s + 1));
+    pos += s + 1;
+  }
   return {
     modus,
     spalten,
     verdeckt: [0, 1, 2, 3, 4, 5, 6],
     fundamente: [[], [], [], []],
-    talon: deck.slice(pos),               // die restlichen 24 Karten
+    talon: deck.slice(pos), // die restlichen 24 Karten
     ablage: [],
   };
 }
@@ -177,7 +183,7 @@ export function darfGezogenWerden(z, von, n) {
   }
   if (von.art === "ablage" || von.art === "fundament") {
     const st = stapelVon(z, von);
-    return !!st && st.length > 0 && n === 1;     // Ablage/Fundament: immer nur die oberste Karte
+    return !!st && st.length > 0 && n === 1; // Ablage/Fundament: immer nur die oberste Karte
   }
   return false;
 }
@@ -190,8 +196,8 @@ export function darfGezogenWerden(z, von, n) {
  */
 export function zugErmitteln(z, von, n, nach) {
   if (!von || !nach) return null;
-  if (nach.art !== "spalte" && nach.art !== "fundament") return null;   // auf die Ablage legt man nichts
-  if (von.art === nach.art && von.i === nach.i) return null;            // auf sich selbst
+  if (nach.art !== "spalte" && nach.art !== "fundament") return null; // auf die Ablage legt man nichts
+  if (von.art === nach.art && von.i === nach.i) return null; // auf sich selbst
   if (von.art === "fundament" && nach.art === "fundament") return null;
   if (!darfGezogenWerden(z, von, n)) return null;
   const quelle = stapelVon(z, von);
@@ -206,14 +212,22 @@ export function zugErmitteln(z, von, n, nach) {
   }
   const rest = quelle.length - n;
   const aufgedeckt = von.art === "spalte" && rest > 0 && z.verdeckt[von.i] === rest;
-  return { typ: "bewegen", von: { art: von.art, i: von.i }, nach: { art: nach.art, i: nach.i }, n, aufgedeckt };
+  return {
+    typ: "bewegen",
+    von: { art: von.art, i: von.i },
+    nach: { art: nach.art, i: nach.i },
+    n,
+    aufgedeckt,
+  };
 }
 
 /** Alle Orte (Spalten/Fundamente), auf die dieser Teilstapel regelgerecht passt. */
 export function moeglicheZiele(z, von, n) {
   const ziele = [];
-  for (let c = 0; c < 7; c++) if (zugErmitteln(z, von, n, { art: "spalte", i: c })) ziele.push({ art: "spalte", i: c });
-  for (let f = 0; f < 4; f++) if (zugErmitteln(z, von, n, { art: "fundament", i: f })) ziele.push({ art: "fundament", i: f });
+  for (let c = 0; c < 7; c++)
+    if (zugErmitteln(z, von, n, { art: "spalte", i: c })) ziele.push({ art: "spalte", i: c });
+  for (let f = 0; f < 4; f++)
+    if (zugErmitteln(z, von, n, { art: "fundament", i: f })) ziele.push({ art: "fundament", i: f });
   return ziele;
 }
 
@@ -259,8 +273,8 @@ export function zugAnwenden(z, zug) {
     while (z.ablage.length) z.talon.push(z.ablage.pop());
   } else if (zug.typ === "bewegen") {
     const quelle = stapelVon(z, zug.von);
-    const teil = quelle.splice(quelle.length - zug.n, zug.n);   // Teilstapel herausschneiden
-    if (zug.aufgedeckt) z.verdeckt[zug.von.i]--;                // darunter liegende Karte aufdecken
+    const teil = quelle.splice(quelle.length - zug.n, zug.n); // Teilstapel herausschneiden
+    if (zug.aufgedeckt) z.verdeckt[zug.von.i]--; // darunter liegende Karte aufdecken
     stapelVon(z, zug.nach).push(...teil);
   }
 }
@@ -270,13 +284,14 @@ export function zugUmkehren(z, zug) {
     if (z.ablage.length < zug.n) throw new Error("Verlauf passt nicht zum Zustand");
     for (let k = 0; k < zug.n; k++) z.talon.push(z.ablage.pop());
   } else if (zug.typ === "recyceln") {
-    if (z.ablage.length !== 0 || z.talon.length < zug.n) throw new Error("Verlauf passt nicht zum Zustand");
+    if (z.ablage.length !== 0 || z.talon.length < zug.n)
+      throw new Error("Verlauf passt nicht zum Zustand");
     for (let k = 0; k < zug.n; k++) z.ablage.push(z.talon.pop());
   } else if (zug.typ === "bewegen") {
     const ziel = stapelVon(z, zug.nach);
     if (!ziel || ziel.length < zug.n) throw new Error("Verlauf passt nicht zum Zustand");
     const teil = ziel.splice(ziel.length - zug.n, zug.n);
-    if (zug.aufgedeckt) z.verdeckt[zug.von.i]++;                // Karte wieder verdecken
+    if (zug.aufgedeckt) z.verdeckt[zug.von.i]++; // Karte wieder verdecken
     stapelVon(z, zug.von).push(...teil);
   } else {
     throw new Error("Unbekannter Zugtyp");
@@ -291,10 +306,10 @@ export function zugUmkehren(z, zug) {
    dann blendet das Spiel den Knopf ein. So kann der Knopf nie ins Leere laufen.
    ------------------------------------------------------------ */
 export function autoAbschlussPlan(z) {
-  if (z.verdeckt.some((v) => v > 0)) return null;               // erst wenn alles aufgedeckt ist
+  if (z.verdeckt.some((v) => v > 0)) return null; // erst wenn alles aufgedeckt ist
   const k = klon(z);
   const plan = [];
-  let leerlauf = 0;                                             // Talon-Züge ohne Fortschritt
+  let leerlauf = 0; // Talon-Züge ohne Fortschritt
   while (!gewonnen(k)) {
     let zug = null;
     const quellen = [{ art: "ablage", i: 0 }];
@@ -309,7 +324,7 @@ export function autoAbschlussPlan(z) {
       leerlauf = 0;
     } else {
       zug = talonZug(k);
-      if (!zug || ++leerlauf > 60) return null;                 // nichts mehr zu tun / Endlosschleife
+      if (!zug || ++leerlauf > 60) return null; // nichts mehr zu tun / Endlosschleife
     }
     zugAnwenden(k, zug);
     plan.push(zug);
@@ -323,15 +338,35 @@ export function autoAbschlussPlan(z) {
 export function lageBerechnen(z) {
   const karten = new Array(52);
   let unten = ZEILE2_Y + KARTE_H;
-  z.talon.forEach((id, k) => { karten[id] = { x: 0, y: 0, z: 1 + k, offen: false, art: "talon", i: 0, pos: k }; });
+  z.talon.forEach((id, k) => {
+    karten[id] = { x: 0, y: 0, z: 1 + k, offen: false, art: "talon", i: 0, pos: k };
+  });
   // Ablage: bei 3 Karten werden die obersten drei aufgefächert, der Rest liegt darunter.
   const faecher = z.modus === 3 ? 3 : 1;
   const start = Math.max(0, z.ablage.length - faecher);
   z.ablage.forEach((id, k) => {
-    karten[id] = { x: SPALTEN_ABSTAND + Math.max(0, k - start) * FAECHER_X, y: 0, z: 1 + k, offen: true, art: "ablage", i: 0, pos: k };
+    karten[id] = {
+      x: SPALTEN_ABSTAND + Math.max(0, k - start) * FAECHER_X,
+      y: 0,
+      z: 1 + k,
+      offen: true,
+      art: "ablage",
+      i: 0,
+      pos: k,
+    };
   });
   z.fundamente.forEach((f, i) => {
-    f.forEach((id, k) => { karten[id] = { x: (3 + i) * SPALTEN_ABSTAND, y: 0, z: 1 + k, offen: true, art: "fundament", i, pos: k }; });
+    f.forEach((id, k) => {
+      karten[id] = {
+        x: (3 + i) * SPALTEN_ABSTAND,
+        y: 0,
+        z: 1 + k,
+        offen: true,
+        art: "fundament",
+        i,
+        pos: k,
+      };
+    });
   });
   z.spalten.forEach((sp, c) => {
     let y = ZEILE2_Y;
@@ -365,9 +400,11 @@ export function ziehbareKarten(z) {
    ------------------------------------------------------------ */
 
 const istGanzzahl = (x) => Number.isInteger(x);
-const istOrt = (o) => !!o && ((o.art === "spalte" && istGanzzahl(o.i) && o.i >= 0 && o.i < 7)
-  || (o.art === "fundament" && istGanzzahl(o.i) && o.i >= 0 && o.i < 4)
-  || (o.art === "ablage" && o.i === 0));
+const istOrt = (o) =>
+  !!o &&
+  ((o.art === "spalte" && istGanzzahl(o.i) && o.i >= 0 && o.i < 7) ||
+    (o.art === "fundament" && istGanzzahl(o.i) && o.i >= 0 && o.i < 4) ||
+    (o.art === "ablage" && o.i === 0));
 
 /** Sind alle 52 Karten genau einmal da und die Struktur in sich stimmig? */
 export function istStimmig(z) {
@@ -381,7 +418,17 @@ export function istStimmig(z) {
     if (!istGanzzahl(v) || v < 0 || v > Math.max(0, z.spalten[c].length - 1)) return false;
   }
   for (const f of z.fundamente) {
-    if (!f.every((id, k) => istGanzzahl(id) && id >= 0 && id < 52 && rangVon(id) === k + 1 && farbeVon(id) === farbeVon(f[0]))) return false;
+    if (
+      !f.every(
+        (id, k) =>
+          istGanzzahl(id) &&
+          id >= 0 &&
+          id < 52 &&
+          rangVon(id) === k + 1 &&
+          farbeVon(id) === farbeVon(f[0]),
+      )
+    )
+      return false;
   }
   const gesehen = new Set();
   const alle = [...z.spalten.flat(), ...z.fundamente.flat(), ...z.talon, ...z.ablage];
@@ -395,9 +442,14 @@ export function istStimmig(z) {
 function istZug(zug) {
   if (!zug || !istGanzzahl(zug.n) || zug.n < 1 || zug.n > 24) return false;
   if (zug.typ === "ziehen" || zug.typ === "recyceln") return true;
-  return zug.typ === "bewegen" && istOrt(zug.von) && istOrt(zug.nach)
-    && zug.nach.art !== "ablage" && typeof zug.aufgedeckt === "boolean"
-    && (!zug.aufgedeckt || zug.von.art === "spalte");
+  return (
+    zug.typ === "bewegen" &&
+    istOrt(zug.von) &&
+    istOrt(zug.nach) &&
+    zug.nach.art !== "ablage" &&
+    typeof zug.aufgedeckt === "boolean" &&
+    (!zug.aufgedeckt || zug.von.art === "spalte")
+  );
 }
 
 /**
@@ -407,8 +459,16 @@ function istZug(zug) {
  */
 export function spielstandPruefen(s) {
   try {
-    if (!s || s.v !== 1 || !s.z || !Array.isArray(s.verlauf) || s.verlauf.length > 5000) return null;
-    const z = { modus: s.modus, spalten: s.z.spalten, verdeckt: s.z.verdeckt, fundamente: s.z.fundamente, talon: s.z.talon, ablage: s.z.ablage };
+    if (!s || s.v !== 1 || !s.z || !Array.isArray(s.verlauf) || s.verlauf.length > 5000)
+      return null;
+    const z = {
+      modus: s.modus,
+      spalten: s.z.spalten,
+      verdeckt: s.z.verdeckt,
+      fundamente: s.z.fundamente,
+      talon: s.z.talon,
+      ablage: s.z.ablage,
+    };
     if (!istStimmig(z) || !s.verlauf.every(istZug)) return null;
     if (typeof s.zeitMs !== "number" || !Number.isFinite(s.zeitMs) || s.zeitMs < 0) return null;
     const probe = klon(z);
@@ -416,7 +476,12 @@ export function spielstandPruefen(s) {
       zugUmkehren(probe, s.verlauf[i]);
       if (!istStimmig(probe)) return null;
     }
-    return { z: klon(z), verlauf: s.verlauf, zeitMs: Math.min(s.zeitMs, MAX_SEKUNDEN * 1000), gestartet: !!s.gestartet };
+    return {
+      z: klon(z),
+      verlauf: s.verlauf,
+      zeitMs: Math.min(s.zeitMs, MAX_SEKUNDEN * 1000),
+      gestartet: !!s.gestartet,
+    };
   } catch {
     return null;
   }
@@ -426,21 +491,21 @@ export function spielstandPruefen(s) {
    TEIL 2 · Zustand der Seite, Aufbau und Rendering
    ============================================================ */
 
-let z = null;                 // aktueller Spielzustand (siehe Kopfkommentar)
-let verlauf = [];             // Stapel aller Züge (LERNKERN 2)
-let zeitMs = 0;               // bereits gespielte Zeit (ohne die laufende Messung)
-let laufStart = null;         // performance.now() beim Start der laufenden Messung, sonst null
-let gestartet = false;        // wurde schon ein Zug gemacht? (dann läuft die Uhr)
-let beendet = false;          // Spiel gewonnen
-let sperre = false;           // true während Auto-Abschluss (Eingaben ignorieren)
-let partieNr = 0;             // zählt neue Spiele hoch; laufende Animationen erkennen so, dass sie veraltet sind
-let auswahl = null;           // Klick-Bedienung: { art, i, pos, ids, n } oder null
-let eingabe = null;           // laufender Zeigervorgang (Maus/Finger), siehe TEIL 3
-let letzterTipp = null;       // { id, zeit } für die Doppelklick-Erkennung
-let aktLage = [];             // zuletzt berechnete Positionen aller Karten (lageBerechnen)
-let vorigeLage = [];          // die Lage davor, um "bewegte" Karten zu erkennen
-let tischHoehe = MIN_HOEHE;   // aktuelle Tischhöhe in kw (wächst nur innerhalb eines Spiels)
-let kaskade = null;           // laufende Sieg-Animation oder null
+let z = null; // aktueller Spielzustand (siehe Kopfkommentar)
+let verlauf = []; // Stapel aller Züge (LERNKERN 2)
+let zeitMs = 0; // bereits gespielte Zeit (ohne die laufende Messung)
+let laufStart = null; // performance.now() beim Start der laufenden Messung, sonst null
+let gestartet = false; // wurde schon ein Zug gemacht? (dann läuft die Uhr)
+let beendet = false; // Spiel gewonnen
+let sperre = false; // true während Auto-Abschluss (Eingaben ignorieren)
+let partieNr = 0; // zählt neue Spiele hoch; laufende Animationen erkennen so, dass sie veraltet sind
+let auswahl = null; // Klick-Bedienung: { art, i, pos, ids, n } oder null
+let eingabe = null; // laufender Zeigervorgang (Maus/Finger), siehe TEIL 3
+let letzterTipp = null; // { id, zeit } für die Doppelklick-Erkennung
+let aktLage = []; // zuletzt berechnete Positionen aller Karten (lageBerechnen)
+let vorigeLage = []; // die Lage davor, um "bewegte" Karten zu erkennen
+let tischHoehe = MIN_HOEHE; // aktuelle Tischhöhe in kw (wächst nur innerhalb eines Spiels)
+let kaskade = null; // laufende Sieg-Animation oder null
 const el = { karten: [], faecher: {} };
 const unterwegsTimer = [];
 
@@ -466,7 +531,8 @@ function elementeBauen() {
   // Platzhalter (leere Felder): Talon, Ablage, 4 Fundamente, 7 Spalten
   const fach = (art, i, x, y, bezeichnung) => {
     const f = neu("div", "fach");
-    f.dataset.art = art; f.dataset.i = String(i);
+    f.dataset.art = art;
+    f.dataset.i = String(i);
     f.setAttribute("aria-label", bezeichnung);
     posSetzen(f, x, y);
     el.tisch.append(f);
@@ -474,14 +540,15 @@ function elementeBauen() {
   };
   fach("talon", 0, 0, 0, "Nachziehstapel");
   fach("ablage", 0, SPALTEN_ABSTAND, 0, "Ablage");
-  for (let f = 0; f < 4; f++) fach("fundament", f, (3 + f) * SPALTEN_ABSTAND, 0, `Ablagestapel ${f + 1}`);
+  for (let f = 0; f < 4; f++)
+    fach("fundament", f, (3 + f) * SPALTEN_ABSTAND, 0, `Ablagestapel ${f + 1}`);
   for (let c = 0; c < 7; c++) fach("spalte", c, c * SPALTEN_ABSTAND, ZEILE2_Y, `Spalte ${c + 1}`);
 
   for (let id = 0; id < 52; id++) {
     const karte = neu("div", "spielkarte");
     karte.dataset.id = String(id);
     karte.setAttribute("role", "img");
-    const dreher = neu("div", "dreher");               // dreht sich beim Aufdecken um 180°
+    const dreher = neu("div", "dreher"); // dreht sich beim Aufdecken um 180°
     const rueck = neu("div", "seite rueck");
     const vorn = neu("div", istRot(id) ? "seite vorn rot" : "seite vorn");
     // U+FE0E erzwingt die Text-Darstellung der Symbole (statt bunter Emoji)
@@ -515,12 +582,17 @@ function zeichnen(opt = {}) {
   const ziehbar = ziehbareKarten(z);
 
   for (let id = 0; id < 52; id++) {
-    const k = karten[id], e = el.karten[id], alt = vorigeLage[id];
-    const bewegt = opt.alle || (opt.ids && opt.ids.includes(id)) || (alt && (alt.x !== k.x || alt.y !== k.y));
+    const k = karten[id],
+      e = el.karten[id],
+      alt = vorigeLage[id];
+    const bewegt =
+      opt.alle || (opt.ids && opt.ids.includes(id)) || (alt && (alt.x !== k.x || alt.y !== k.y));
     e.classList.remove("zieht");
     e.classList.toggle("offen", k.offen);
     e.classList.toggle("ziehbar", ziehbar.has(id));
-    e.dataset.art = k.art; e.dataset.i = String(k.i); e.dataset.pos = String(k.pos);
+    e.dataset.art = k.art;
+    e.dataset.i = String(k.i);
+    e.dataset.pos = String(k.pos);
     e.dataset.z = String(k.z);
     e.setAttribute("aria-label", k.offen ? kartenName(id) : "Verdeckte Karte");
     posSetzen(e, k.x, k.y);
@@ -529,7 +601,10 @@ function zeichnen(opt = {}) {
       // Eine gleitende Karte soll über den anderen schweben; danach sinkt sie auf ihre Ebene.
       e.classList.add("unterwegs");
       e.style.zIndex = String(100 + k.z);
-      unterwegsTimer[id] = setTimeout(() => { e.classList.remove("unterwegs"); e.style.zIndex = e.dataset.z; }, UNTERWEGS_MS);
+      unterwegsTimer[id] = setTimeout(() => {
+        e.classList.remove("unterwegs");
+        e.style.zIndex = e.dataset.z;
+      }, UNTERWEGS_MS);
     } else if (!e.classList.contains("unterwegs")) {
       e.style.zIndex = String(k.z);
     }
@@ -538,7 +613,12 @@ function zeichnen(opt = {}) {
     e.firstChild.style.transitionDelay = verz;
   }
   if (opt.verzoegerung) {
-    setTimeout(() => { for (const e of el.karten) { e.style.transitionDelay = ""; e.firstChild.style.transitionDelay = ""; } }, 1600);
+    setTimeout(() => {
+      for (const e of el.karten) {
+        e.style.transitionDelay = "";
+        e.firstChild.style.transitionDelay = "";
+      }
+    }, 1600);
   }
   vorigeLage = karten;
   auswahlAnzeigen();
@@ -547,14 +627,25 @@ function zeichnen(opt = {}) {
 /** Austeil-Animation: alle Karten liegen auf dem Talon und gleiten nacheinander an ihren Platz. */
 function austeilen() {
   vorigeLage = [];
-  if (bewegungReduziert()) { zeichnen(); return; }
-  for (const e of el.karten) { e.classList.add("zieht"); e.classList.remove("offen"); posSetzen(e, 0, 0); }
-  void el.tisch.offsetWidth;                      // Layout erzwingen: der Sprung zum Talon ist jetzt "fest"
+  if (bewegungReduziert()) {
+    zeichnen();
+    return;
+  }
+  for (const e of el.karten) {
+    e.classList.add("zieht");
+    e.classList.remove("offen");
+    posSetzen(e, 0, 0);
+  }
+  void el.tisch.offsetWidth; // Layout erzwingen: der Sprung zum Talon ist jetzt "fest"
   // Reihenfolge wie am echten Tisch: Reihe für Reihe, von links nach rechts
   const reihenfolge = new Map();
   let n = 0;
-  for (let reihe = 0; reihe < 7; reihe++) for (let c = reihe; c < 7; c++) reihenfolge.set(z.spalten[c][reihe], n++);
-  zeichnen({ alle: true, verzoegerung: (id) => (reihenfolge.has(id) ? reihenfolge.get(id) * 30 : 0) });
+  for (let reihe = 0; reihe < 7; reihe++)
+    for (let c = reihe; c < 7; c++) reihenfolge.set(z.spalten[c][reihe], n++);
+  zeichnen({
+    alle: true,
+    verzoegerung: (id) => (reihenfolge.has(id) ? reihenfolge.get(id) * 30 : 0),
+  });
 }
 
 /** Markiert die Klick-Auswahl (cyanfarbener Rahmen) und die möglichen Ziele. */
@@ -585,7 +676,7 @@ function schuetteln(ids) {
   for (const id of ids) {
     const e = el.karten[id];
     e.classList.remove("schuettel");
-    void e.offsetWidth;                           // Animation neu starten
+    void e.offsetWidth; // Animation neu starten
     e.classList.add("schuettel");
     setTimeout(() => e.classList.remove("schuettel"), 480);
   }
@@ -596,10 +687,14 @@ function schuetteln(ids) {
    ------------------------------------------------------------ */
 const zeitJetzt = () => zeitMs + (laufStart !== null ? performance.now() - laufStart : 0);
 function uhrStarten() {
-  if (laufStart === null && gestartet && !beendet && !document.hidden) laufStart = performance.now();
+  if (laufStart === null && gestartet && !beendet && !document.hidden)
+    laufStart = performance.now();
 }
 function uhrPausieren() {
-  if (laufStart !== null) { zeitMs += performance.now() - laufStart; laufStart = null; }
+  if (laufStart !== null) {
+    zeitMs += performance.now() - laufStart;
+    laufStart = null;
+  }
 }
 const sekunden = () => Math.min(MAX_SEKUNDEN, Math.floor(zeitJetzt() / 1000));
 
@@ -629,15 +724,26 @@ function modusKnoepfeAktualisieren() {
   }
 }
 
-const ansage = (text) => { el.status.textContent = text; };
+const ansage = (text) => {
+  el.status.textContent = text;
+};
 
 /** Speichert Spielstand inkl. komplettem Verlauf (nur über storage.js). */
 function speichern() {
   if (beendet) return;
   speichere(SPIEL, "spielstand", {
-    v: 1, modus: z.modus,
-    z: { spalten: z.spalten, verdeckt: z.verdeckt, fundamente: z.fundamente, talon: z.talon, ablage: z.ablage },
-    verlauf, zeitMs: Math.round(zeitJetzt()), gestartet,
+    v: 1,
+    modus: z.modus,
+    z: {
+      spalten: z.spalten,
+      verdeckt: z.verdeckt,
+      fundamente: z.fundamente,
+      talon: z.talon,
+      ablage: z.ablage,
+    },
+    verlauf,
+    zeitMs: Math.round(zeitJetzt()),
+    gestartet,
   });
 }
 
@@ -648,14 +754,25 @@ function frage(text, jaText) {
     const d = document.createElement("dialog");
     d.className = "spiel-dialog";
     d.id = "frage-dialog";
-    const h = document.createElement("h2"); h.textContent = "Sicher?";
-    const p = document.createElement("p"); p.textContent = text;
-    const aktionen = document.createElement("div"); aktionen.className = "aktionen";
-    const ja = document.createElement("button"); ja.className = "knopf primaer"; ja.textContent = jaText;
-    const nein = document.createElement("button"); nein.className = "knopf"; nein.textContent = "Abbrechen";
+    const h = document.createElement("h2");
+    h.textContent = "Sicher?";
+    const p = document.createElement("p");
+    p.textContent = text;
+    const aktionen = document.createElement("div");
+    aktionen.className = "aktionen";
+    const ja = document.createElement("button");
+    ja.className = "knopf primaer";
+    ja.textContent = jaText;
+    const nein = document.createElement("button");
+    nein.className = "knopf";
+    nein.textContent = "Abbrechen";
     ja.addEventListener("click", () => d.close("ja"));
     nein.addEventListener("click", () => d.close("nein"));
-    d.addEventListener("close", () => { const antwort = d.returnValue === "ja"; d.remove(); fertig(antwort); });
+    d.addEventListener("close", () => {
+      const antwort = d.returnValue === "ja";
+      d.remove();
+      fertig(antwort);
+    });
     aktionen.append(ja, nein);
     d.append(h, p, aktionen);
     document.body.append(d);
@@ -678,7 +795,10 @@ function zugAusfuehren(zug) {
   verlauf.push(zug);
   auswahl = null;
   letzterTipp = null;
-  if (!gestartet) { gestartet = true; uhrStarten(); }
+  if (!gestartet) {
+    gestartet = true;
+    uhrStarten();
+  }
   speichern();
   zeichnen();
   hudZeichnen();
@@ -712,11 +832,14 @@ async function autoAbschluss() {
   auswahl = null;
   knoepfeAktualisieren();
   for (const schritt of plan) {
-    if (meine !== partieNr) return;               // inzwischen neues Spiel: abbrechen
+    if (meine !== partieNr) return; // inzwischen neues Spiel: abbrechen
     zugAusfuehren(schritt);
     await warte(schritt.typ === "bewegen" ? 110 : 25);
   }
-  if (meine === partieNr) { sperre = false; knoepfeAktualisieren(); }
+  if (meine === partieNr) {
+    sperre = false;
+    knoepfeAktualisieren();
+  }
 }
 
 /** Sieg: Uhr stoppen, Spielstand löschen, Kaskade, dann der gemeinsame Dialog. */
@@ -731,13 +854,13 @@ async function sieg() {
   const modus = z.modus;
   const sek = Math.max(1, sekunden());
   await kaskadeStarten();
-  if (meine !== partieNr) return;                 // in der Zwischenzeit neues Spiel gestartet
+  if (meine !== partieNr) return; // in der Zwischenzeit neues Spiel gestartet
   const dialog = gameOverDialog({
     spiel: toplisteKey(modus),
     titel: "GEWONNEN!",
     punkte: sek,
     punkteText: zeitText(sek),
-    richtung: "runter",                           // weniger Sekunden = besser
+    richtung: "runter", // weniger Sekunden = besser
     format: zeitText,
     neustart: () => neuesSpiel(),
   });
@@ -765,12 +888,18 @@ async function sieg() {
  */
 function kaskadeStarten() {
   return new Promise((fertig) => {
-    if (bewegungReduziert()) { setTimeout(fertig, 500); return; }
+    if (bewegungReduziert()) {
+      setTimeout(fertig, 500);
+      return;
+    }
     kaskadeStop();
     el.tisch.classList.add("kaskade");
     const reihenfolge = [];
     for (let rang = 12; rang >= 0; rang--) {
-      for (let f = 0; f < 4; f++) { const id = z.fundamente[f][rang]; if (id !== undefined) reihenfolge.push(id); }
+      for (let f = 0; f < 4; f++) {
+        const id = z.fundamente[f][rang];
+        if (id !== undefined) reihenfolge.push(id);
+      }
     }
     const flug = [];
     const k = { rahmen: 0, fertig, uebersprungen: false };
@@ -778,7 +907,7 @@ function kaskadeStarten() {
     const t0 = performance.now();
     let letzte = t0;
     let gestartetAnz = 0;
-    const SCHWERKRAFT = 24;                       // in Kartenbreiten pro Sekunde²
+    const SCHWERKRAFT = 24; // in Kartenbreiten pro Sekunde²
     const boden = () => tischHoehe - KARTE_H;
 
     function bild(jetzt) {
@@ -793,7 +922,14 @@ function kaskadeStarten() {
         e.classList.add("zieht");
         e.classList.remove("ziehbar");
         e.style.zIndex = String(400 + gestartetAnz);
-        flug.push({ id, x: l.x, y: l.y, vx: (Math.random() < 0.5 ? -1 : 1) * (1.5 + Math.random() * 3.5), vy: -(1 + Math.random() * 4), aus: false });
+        flug.push({
+          id,
+          x: l.x,
+          y: l.y,
+          vx: (Math.random() < 0.5 ? -1 : 1) * (1.5 + Math.random() * 3.5),
+          vy: -(1 + Math.random() * 4),
+          aus: false,
+        });
         gestartetAnz++;
       }
       for (const f of flug) {
@@ -801,7 +937,10 @@ function kaskadeStarten() {
         f.vy += SCHWERKRAFT * dt;
         f.x += f.vx * dt;
         f.y += f.vy * dt;
-        if (f.y > boden()) { f.y = boden(); f.vy = -f.vy * 0.72; }
+        if (f.y > boden()) {
+          f.y = boden();
+          f.vy = -f.vy * 0.72;
+        }
         posSetzen(el.karten[f.id], f.x, f.y);
         if (f.x < -1.6 || f.x > BREITE + 0.6) f.aus = true;
       }
@@ -809,7 +948,11 @@ function kaskadeStarten() {
         // alle gestartet: noch einen Moment zuschauen, dann den Dialog zeigen
         k.dialog = setTimeout(() => fertig(), 900);
       }
-      if (gestartetAnz >= reihenfolge.length && flug.every((f) => f.aus)) { kaskadeStop(); fertig(); return; }
+      if (gestartetAnz >= reihenfolge.length && flug.every((f) => f.aus)) {
+        kaskadeStop();
+        fertig();
+        return;
+      }
       k.rahmen = requestAnimationFrame(bild);
     }
     k.rahmen = requestAnimationFrame(bild);
@@ -824,7 +967,7 @@ function kaskadeStop() {
   const k = kaskade;
   kaskade = null;
   el.tisch.classList.remove("kaskade");
-  k.fertig();                                     // Promise nie hängen lassen
+  k.fertig(); // Promise nie hängen lassen
 }
 
 /** Klick während der Kaskade: sofort zum Dialog. */
@@ -866,7 +1009,7 @@ function ziehGruppe(info) {
     if (info.pos !== st.length - 1) return null;
     return { art: info.art, i: info.i, pos: info.pos, ids: [st[info.pos]], n: 1 };
   }
-  return null;                                    // Talon-Karten kann man nicht ziehen
+  return null; // Talon-Karten kann man nicht ziehen
 }
 
 /** Aus dem angeklickten Element (Karte oder leeres Feld) wird eine Info mit Ort. */
@@ -883,15 +1026,29 @@ const kwPixel = () => el.karten[0].getBoundingClientRect().width;
 
 function zeigerUnten(e) {
   if (sperre || eingabe) return;
-  if (beendet) { kaskadeUeberspringen(); return; }
-  if (e.pointerType === "mouse" && e.button !== 0) return;       // nur linke Maustaste
+  if (beendet) {
+    kaskadeUeberspringen();
+    return;
+  }
+  if (e.pointerType === "mouse" && e.button !== 0) return; // nur linke Maustaste
   const ziel = e.target.closest(".spielkarte, .fach");
   if (!ziel) return;
   const info = infoAus(ziel);
   const gruppe = info.id !== null ? ziehGruppe(info) : null;
-  eingabe = { pointerId: e.pointerId, startX: e.clientX, startY: e.clientY, info, gruppe, ziehen: false };
+  eingabe = {
+    pointerId: e.pointerId,
+    startX: e.clientX,
+    startY: e.clientY,
+    info,
+    gruppe,
+    ziehen: false,
+  };
   if (gruppe) {
-    try { el.tisch.setPointerCapture(e.pointerId); } catch { /* Zeiger schon weg: egal */ }
+    try {
+      el.tisch.setPointerCapture(e.pointerId);
+    } catch {
+      /* Zeiger schon weg: egal */
+    }
   }
 }
 
@@ -907,7 +1064,7 @@ function ziehenStarten() {
     const e = el.karten[id];
     clearTimeout(unterwegsTimer[id]);
     e.classList.remove("unterwegs");
-    e.classList.add("zieht");                     // keine Transition: Karte klebt am Finger
+    e.classList.add("zieht"); // keine Transition: Karte klebt am Finger
     e.style.zIndex = String(500 + k);
     e.style.transitionDelay = "";
   });
@@ -915,13 +1072,18 @@ function ziehenStarten() {
 
 function zeigerBewegt(e) {
   if (!eingabe || e.pointerId !== eingabe.pointerId) return;
-  const dx = e.clientX - eingabe.startX, dy = e.clientY - eingabe.startY;
+  const dx = e.clientX - eingabe.startX,
+    dy = e.clientY - eingabe.startY;
   if (!eingabe.ziehen) {
     if (!eingabe.gruppe || Math.hypot(dx, dy) < ZIEH_SCHWELLE_PX) return;
     ziehenStarten();
   }
   eingabe.gruppe.ids.forEach((id, k) => {
-    posSetzen(el.karten[id], eingabe.basis[k].x + dx / eingabe.kw, eingabe.basis[k].y + dy / eingabe.kw);
+    posSetzen(
+      el.karten[id],
+      eingabe.basis[k].x + dx / eingabe.kw,
+      eingabe.basis[k].y + dy / eingabe.kw,
+    );
   });
   eingabe.zeiger = { x: e.clientX, y: e.clientY };
 }
@@ -939,12 +1101,18 @@ function besteZiel(ein) {
   const py = ein.zeiger ? (ein.zeiger.y - r.top) / ein.kw : -99;
   const kx = ein.basis[0].x + (ein.zeiger.x - ein.startX) / ein.kw;
   const ky = ein.basis[0].y + (ein.zeiger.y - ein.startY) / ein.kw;
-  let bester = null, besterWert = 0.2;
+  let bester = null,
+    besterWert = 0.2;
   for (const ziel of ziele) {
-    let zx, zy, zh = KARTE_H;
-    if (ziel.art === "fundament") { zx = (3 + ziel.i) * SPALTEN_ABSTAND; zy = 0; }
-    else {
-      zx = ziel.i * SPALTEN_ABSTAND; zy = ZEILE2_Y;
+    let zx,
+      zy,
+      zh = KARTE_H;
+    if (ziel.art === "fundament") {
+      zx = (3 + ziel.i) * SPALTEN_ABSTAND;
+      zy = 0;
+    } else {
+      zx = ziel.i * SPALTEN_ABSTAND;
+      zy = ZEILE2_Y;
       const sp = z.spalten[ziel.i];
       if (sp.length) zh = Math.max(KARTE_H, aktLage[sp[sp.length - 1]].y + KARTE_H - ZEILE2_Y);
     }
@@ -952,7 +1120,10 @@ function besteZiel(ein) {
     const hoehe = Math.max(0, Math.min(ky + KARTE_H, zy + zh) - Math.max(ky, zy));
     let wert = (breite * hoehe) / KARTE_H;
     if (px >= zx && px <= zx + 1 && py >= zy && py <= zy + zh) wert += 1;
-    if (wert > besterWert) { besterWert = wert; bester = ziel; }
+    if (wert > besterWert) {
+      besterWert = wert;
+      bester = ziel;
+    }
   }
   return bester;
 }
@@ -961,20 +1132,26 @@ function zeigerHoch(e) {
   if (!eingabe || e.pointerId !== eingabe.pointerId) return;
   const ein = eingabe;
   eingabe = null;
-  if (!ein.ziehen) { tipp(ein.info); return; }
+  if (!ein.ziehen) {
+    tipp(ein.info);
+    return;
+  }
   zielLoeschen();
   const g = ein.gruppe;
   const ziel = ein.zeiger ? besteZiel(ein) : null;
   const zug = ziel ? zugErmitteln(z, { art: g.art, i: g.i }, g.n, ziel) : null;
   if (zug) zugAusfuehren(zug);
-  else zeichnen({ ids: g.ids });                  // ungültig: sanft zurückgleiten
+  else zeichnen({ ids: g.ids }); // ungültig: sanft zurückgleiten
 }
 
 function zeigerAbbruch(e) {
   if (!eingabe || e.pointerId !== eingabe.pointerId) return;
   const ein = eingabe;
   eingabe = null;
-  if (ein.ziehen) { zielLoeschen(); zeichnen({ ids: ein.gruppe.ids }); }
+  if (ein.ziehen) {
+    zielLoeschen();
+    zeichnen({ ids: ein.gruppe.ids });
+  }
 }
 
 /* ------------------------------------------------------------
@@ -985,14 +1162,20 @@ function zeigerAbbruch(e) {
    ------------------------------------------------------------ */
 function tipp(info) {
   const jetzt = performance.now();
-  const doppelt = info.id !== null && letzterTipp && letzterTipp.id === info.id && jetzt - letzterTipp.zeit < DOPPELTIPP_MS;
+  const doppelt =
+    info.id !== null &&
+    letzterTipp &&
+    letzterTipp.id === info.id &&
+    jetzt - letzterTipp.zeit < DOPPELTIPP_MS;
   letzterTipp = { id: info.id, zeit: jetzt };
 
   if (info.art === "talon") {
     auswahl = null;
     const zug = talonZug(z);
     if (zug) zugAusfuehren(zug);
-    else { auswahlAnzeigen(); }
+    else {
+      auswahlAnzeigen();
+    }
     return;
   }
 
@@ -1001,29 +1184,51 @@ function tipp(info) {
     const st = stapelVon(z, info);
     if (info.pos === st.length - 1) {
       const zug = autoZiel(z, { art: info.art, i: info.i });
-      if (zug) { zugAusfuehren(zug); return; }
+      if (zug) {
+        zugAusfuehren(zug);
+        return;
+      }
       schuetteln([info.id]);
-      return;                                     // Auswahl bleibt stehen
+      return; // Auswahl bleibt stehen
     }
   }
 
   if (auswahl) {
     // Nochmal auf die gewählte Gruppe tippen = Auswahl aufheben
-    if (info.art === auswahl.art && info.i === auswahl.i && info.pos >= auswahl.pos && info.id !== null) {
-      auswahl = null; auswahlAnzeigen(); return;
+    if (
+      info.art === auswahl.art &&
+      info.i === auswahl.i &&
+      info.pos >= auswahl.pos &&
+      info.id !== null
+    ) {
+      auswahl = null;
+      auswahlAnzeigen();
+      return;
     }
-    const nach = info.art === "spalte" || info.art === "fundament" ? { art: info.art, i: info.i } : null;
+    const nach =
+      info.art === "spalte" || info.art === "fundament" ? { art: info.art, i: info.i } : null;
     const zug = nach ? zugErmitteln(z, { art: auswahl.art, i: auswahl.i }, auswahl.n, nach) : null;
-    if (zug) { zugAusfuehren(zug); return; }
+    if (zug) {
+      zugAusfuehren(zug);
+      return;
+    }
     const neu = info.id !== null ? ziehGruppe(info) : null;
-    if (neu) { auswahl = neu; auswahlAnzeigen(); return; }
+    if (neu) {
+      auswahl = neu;
+      auswahlAnzeigen();
+      return;
+    }
     schuetteln(auswahl.ids);
-    auswahl = null; auswahlAnzeigen();
+    auswahl = null;
+    auswahlAnzeigen();
     return;
   }
 
   const g = info.id !== null ? ziehGruppe(info) : null;
-  if (g) { auswahl = g; auswahlAnzeigen(); }
+  if (g) {
+    auswahl = g;
+    auswahlAnzeigen();
+  }
 }
 
 function eingabeEinrichten() {
@@ -1032,15 +1237,21 @@ function eingabeEinrichten() {
   t.addEventListener("pointermove", zeigerBewegt);
   t.addEventListener("pointerup", zeigerHoch);
   t.addEventListener("pointercancel", zeigerAbbruch);
-  t.addEventListener("contextmenu", (e) => e.preventDefault());     // kein Menü bei langem Drücken
+  t.addEventListener("contextmenu", (e) => e.preventDefault()); // kein Menü bei langem Drücken
   t.addEventListener("dragstart", (e) => e.preventDefault());
   // Während der Siegeskaskade überspringt ein Klick irgendwo auf der Seite die Animation
-  document.addEventListener("pointerdown", () => { if (beendet) kaskadeUeberspringen(); });
+  document.addEventListener("pointerdown", () => {
+    if (beendet) kaskadeUeberspringen();
+  });
 
   // Taste Z = Rückgängig (auch Strg+Z), solange kein Dialog offen ist
   document.addEventListener("keydown", (e) => {
-    if ((e.key === "z" || e.key === "Z") && !e.altKey && !document.querySelector("dialog[open]")
-        && !(e.target instanceof HTMLInputElement)) {
+    if (
+      (e.key === "z" || e.key === "Z") &&
+      !e.altKey &&
+      !document.querySelector("dialog[open]") &&
+      !(e.target instanceof HTMLInputElement)
+    ) {
       e.preventDefault();
       rueckgaengig();
     }
@@ -1054,11 +1265,16 @@ function eingabeEinrichten() {
 function neuesSpiel(modus = z ? z.modus : 1) {
   partieNr++;
   kaskadeStop();
-  sperre = false; beendet = false;
+  sperre = false;
+  beendet = false;
   z = neuesBlatt(modus);
   verlauf = [];
-  zeitMs = 0; laufStart = null; gestartet = false;
-  auswahl = null; eingabe = null; letzterTipp = null;
+  zeitMs = 0;
+  laufStart = null;
+  gestartet = false;
+  auswahl = null;
+  eingabe = null;
+  letzterTipp = null;
   tischHoehe = MIN_HOEHE;
   speichere(SPIEL, "modus", modus);
   speichern();
@@ -1074,18 +1290,38 @@ function neuesSpiel(modus = z ? z.modus : 1) {
 const hatFortschritt = () => verlauf.length > 0 && !beendet;
 
 async function neuesSpielMitFrage() {
-  if (hatFortschritt() && !(await frage("Das laufende Spiel geht verloren. Wirklich ein neues Spiel starten?", "Ja, neues Spiel"))) return;
+  if (
+    hatFortschritt() &&
+    !(await frage(
+      "Das laufende Spiel geht verloren. Wirklich ein neues Spiel starten?",
+      "Ja, neues Spiel",
+    ))
+  )
+    return;
   neuesSpiel();
 }
 
 async function modusWaehlen(neu) {
   if (!MODI.includes(neu) || neu === z.modus) return;
-  if (hatFortschritt() && !(await frage("Ein Moduswechsel startet ein neues Spiel. Das laufende Spiel geht verloren.", "Ja, wechseln"))) return;
+  if (
+    hatFortschritt() &&
+    !(await frage(
+      "Ein Moduswechsel startet ein neues Spiel. Das laufende Spiel geht verloren.",
+      "Ja, wechseln",
+    ))
+  )
+    return;
   neuesSpiel(neu);
 }
 
 async function zuruecksetzen() {
-  if (!(await frage("Beide Toplisten und der gespeicherte Spielstand werden gelöscht. Fortfahren?", "Ja, löschen"))) return;
+  if (
+    !(await frage(
+      "Beide Toplisten und der gespeicherte Spielstand werden gelöscht. Fortfahren?",
+      "Ja, löschen",
+    ))
+  )
+    return;
   for (const m of MODI) spielZuruecksetzen(toplisteKey(m));
   spielZuruecksetzen(SPIEL);
   neuesSpiel();
@@ -1095,12 +1331,16 @@ async function zuruecksetzen() {
 function startLaden() {
   const gemerkt = lade(SPIEL, "modus", 1);
   const stand = spielstandPruefen(lade(SPIEL, "spielstand", null));
-  if (!stand) { neuesSpiel(MODI.includes(gemerkt) ? gemerkt : 1); return; }
+  if (!stand) {
+    neuesSpiel(MODI.includes(gemerkt) ? gemerkt : 1);
+    return;
+  }
   z = stand.z;
   verlauf = stand.verlauf;
   zeitMs = stand.zeitMs;
   gestartet = stand.gestartet;
-  beendet = false; sperre = false;
+  beendet = false;
+  sperre = false;
   speichere(SPIEL, "modus", z.modus);
   modusKnoepfeAktualisieren();
   toplisteAktualisieren();
@@ -1134,10 +1374,18 @@ function init() {
 
   // Uhr: pausiert, solange der Tab verborgen ist (Zeit wird dann auch gespeichert)
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) { uhrPausieren(); speichern(); } else uhrStarten();
+    if (document.hidden) {
+      uhrPausieren();
+      speichern();
+    } else uhrStarten();
   });
-  window.addEventListener("pagehide", () => { uhrPausieren(); speichern(); });
-  setInterval(() => { if (z) el.hudZeit.textContent = zeitText(sekunden()); }, 250);
+  window.addEventListener("pagehide", () => {
+    uhrPausieren();
+    speichern();
+  });
+  setInterval(() => {
+    if (z) el.hudZeit.textContent = zeitText(sekunden());
+  }, 250);
 
   startLaden();
 }
