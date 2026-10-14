@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07070f">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/style.css">
+  <!-- Spielspezifische Styles (Tisch, Karten, Felder, Hervorhebungen) -->
+  <link rel="stylesheet" href="./spiel.css">
+  <title>Solitär · Browser-Arcade</title>
+  <meta name="description" content="Klondike-Solitär im Browser: Sortiere alle 52 Karten auf die vier Ablagestapel, per Drag &amp; Drop oder Klick, mit Rückgängig, Auto-Abschluss und Bestzeit pro Zieh-Modus.">
+</head>
+<body style="--ak:var(--gold)">
+  <div class="raster" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+  <header class="kopf"><nav class="container nav" aria-label="Hauptnavigation">
+    <a class="marke" href="./"><span class="logo">▶</span>GAMES</a>
+    <div class="nav-links"><a href="./impressum.html">Impressum</a><a href="./datenschutz.html">Datenschutz</a></div>
+  </nav></header>
+  <main id="main" class="container">
+    <div class="spiel-kopf">
+      <div><h1>SOLITÄR</h1><p class="unterzeile">Klondike: Sortiere alle 52 Karten aufsteigend auf die vier Ablagestapel.</p></div>
+      <button type="button" class="knopf primaer" id="neues-spiel">Neues Spiel</button>
+    </div>
+    <div class="hud">
+      <div class="hud-feld"><div class="label">Zeit</div><div class="wert" id="hud-zeit">00:00</div></div>
+      <div class="hud-feld"><div class="label">Züge</div><div class="wert" id="hud-zuege">0</div></div>
+      <div class="hud-feld"><div class="label">Bestzeit</div><div class="wert" id="hud-best">--:--</div></div>
+    </div>
+
+    <!-- Zieh-Modus wählen: aria-pressed zeigt Screenreadern, welcher Knopf aktiv ist -->
+    <div class="stufen-leiste" role="group" aria-label="Zieh-Modus">
+      <button type="button" class="knopf" data-modus="1" aria-pressed="true">1 Karte <small>einzeln ziehen · leichter</small></button>
+      <button type="button" class="knopf" data-modus="3" aria-pressed="false">3 Karten <small>im Dreierpack · schwerer</small></button>
+    </div>
+
+    <div class="buehne">
+      <div class="tisch" id="tisch" role="group" aria-label="Spieltisch"></div>
+    </div>
+    <!-- Unsichtbare Live-Region: Screenreader hören hier Sieg und Rückgängig -->
+    <p class="sr-only" id="status" role="status" aria-live="polite"></p>
+
+    <div class="steuerung">
+      <div class="aktionen-leiste">
+        <button type="button" class="knopf" id="rueckgaengig" disabled>Rückgängig <kbd>Z</kbd></button>
+        <button type="button" class="knopf primaer" id="auto" hidden>Auto-Abschluss</button>
+      </div>
+      <p>
+        Maus und Touch: Karte oder ganzen Teilstapel <kbd>ziehen</kbd> und auf dem Ziel loslassen.
+        Alternativ <kbd>Klick</kbd> auf die Karte (sie leuchtet), dann <kbd>Klick</kbd> aufs Ziel.
+        <kbd>Doppelklick</kbd> (am Handy: Doppeltipp) schickt eine Karte auf den passenden Ablagestapel.
+        Ein Klick auf den Stapel oben links zieht neue Karten. <kbd>Z</kbd> macht den letzten Zug rückgängig.
+      </p>
+    </div>
+
+    <section style="max-width:420px;margin-top:36px"><h2 id="topliste-titel" style="font-family:var(--pixel);font-weight:400;font-size:.85rem">Lokale Top 3</h2><div id="topliste"></div>
+      <button class="knopf" id="reset" style="margin-top:10px">Spielstand zurücksetzen</button></section>
+
+    <section class="lernbox"><details open><summary>Anleitung &amp; Regeln</summary>
+      <p><strong>Ziel:</strong> Bringe alle 52 Karten auf die vier Ablagestapel oben rechts, jeweils aufsteigend von Ass bis König in einer Farbe.</p>
+      <ul>
+        <li><strong>Spalten:</strong> Auf dem Tisch liegen sieben Spalten mit 1 bis 7 Karten, nur die oberste ist aufgedeckt. Karten legst du absteigend und in wechselnder Farbe an (rote 6 auf schwarze 7). Wird eine Karte weggenommen, deckst du die verdeckte darunter automatisch auf.</li>
+        <li><strong>Leere Spalte:</strong> Hier darf nur ein König (oder ein Stapel mit König ganz unten) hin.</li>
+        <li><strong>Teilstapel:</strong> Du kannst mehrere ordentlich angelegte Karten gemeinsam verschieben, indem du die oberste der Gruppe greifst.</li>
+        <li><strong>Ablagestapel:</strong> Ein Ass startet einen Stapel (auf ein leeres Feld legen), danach gleiche Farbe aufsteigend. Aus einem Ablagestapel darfst du die oberste Karte auch zurück in eine Spalte holen.</li>
+        <li><strong>Talon:</strong> Ein Klick auf den Stapel oben links deckt Karten auf. Im Modus „1 Karte“ eine, im Modus „3 Karten“ drei, von denen nur die oberste spielbar ist. Ist der Talon leer, wird die Ablage ohne Mischen wieder zum Talon, so oft du willst.</li>
+        <li><strong>Rückgängig:</strong> Beliebig viele Züge bis zum Spielstart, auch Aufdecken und Talon-Durchläufe.</li>
+        <li><strong>Auto-Abschluss:</strong> Sind alle Karten aufgedeckt und lässt sich das Spiel nur noch durch Ablegen beenden, erscheint ein Knopf, der den Rest für dich erledigt.</li>
+        <li><strong>Zeit und Rekord:</strong> Die Uhr startet mit dem ersten Zug und pausiert, wenn der Tab verborgen ist. Die Bestzeit zählt getrennt für „1 Karte“ und „3 Karten“. Der Spielstand wird nach jedem Zug gespeichert und beim nächsten Besuch fortgesetzt.</li>
+        <li><strong>Gut zu wissen:</strong> Nicht jedes Klondike-Blatt ist lösbar. Das ist bei diesem Spiel normal, das Spiel garantiert keine Lösbarkeit. Dann hilft ein Neustart.</li>
+      </ul>
+    </details></section>
+
+    <section class="lernbox"><details><summary>Wie funktioniert der Code?</summary>
+      <ul>
+        <li><strong>Karten sind nur Zahlen:</strong> Jede Karte ist eine Nummer von 0 bis 51. Aus <code>Math.floor(id / 13)</code> wird die Farbe, aus <code>id % 13 + 1</code> der Rang. Der ganze Spielzustand besteht aus Listen solcher Nummern (Spalten, Ablagestapel, Talon, Ablage) plus einer Zahl pro Spalte, die sagt, wie viele Karten am Anfang noch verdeckt sind. Weil verdeckte Karten immer unten liegen, reicht diese eine Zahl.</li>
+        <li><strong>Regeln als reine Funktionen:</strong> Anlegen (<code>passtAufSpalte</code>, <code>passtAufFundament</code>), gültige Teilstapel (<code>ziehbarAb</code>) und Zugprüfung (<code>zugErmitteln</code>) greifen weder auf die Seite noch auf den Speicher zu. Deshalb lassen sie sich in Node ohne Browser testen, auch mit tausenden zufälligen Zügen.</li>
+        <li><strong>Pointer Events (Drag &amp; Drop):</strong> <code>pointerdown</code>, <code>pointermove</code> und <code>pointerup</code> funktionieren für Maus, Finger und Stift mit demselben Code. Mit <code>setPointerCapture</code> schickt der Browser alle weiteren Ereignisse des Zeigers an den Tisch, auch wenn er schnell über andere Elemente wandert. Bewegt sich der Zeiger weniger als 6 Pixel, gilt der Vorgang als Klick, sonst als Ziehen. Beim Ziehen werden nur die CSS-Variablen der Karten geändert, beim Loslassen wird das Ziel über die Überlappung bestimmt. Ein ungültiger Drop zeichnet einfach den Zustand neu, die Karten gleiten zurück.</li>
+        <li><strong>Zug-Verlauf mit Umkehrfunktion:</strong> Jeder Zug ist ein kleines Objekt, zum Beispiel <code>{ typ: "bewegen", von, nach, n, aufgedeckt }</code>. <code>zugAnwenden</code> führt ihn aus, <code>zugUmkehren</code> macht ihn exakt rückgängig. Alle Züge liegen auf einem Stapel (<code>verlauf</code>): Rückgängig heißt <code>pop()</code> und umkehren. Damit das Aufdecken umkehrbar ist, merkt sich der Zug im Feld <code>aufgedeckt</code>, ob er eine Karte umgedreht hat. Der Talon-Durchlauf erhält die Reihenfolge, weil beim Umdrehen genau rückwärts umgeschichtet wird.</li>
+        <li><strong>Eine Stelle für jeden Zug:</strong> Ob Ziehen, Klicken, Doppelklick oder Auto-Abschluss: Alles läuft durch <code>zugAusfuehren</code> (anwenden, auf den Verlauf legen, speichern, neu zeichnen, Sieg prüfen). So kann nichts am Verlauf vorbeischlüpfen.</li>
+        <li><strong>Gleiten per CSS:</strong> Die 52 Karten werden einmal erzeugt. Eine Karte bekommt ihre Position nur über <code>--x</code> und <code>--y</code>, und <code>transition: transform</code> animiert jede Änderung. Für das Umdrehen sorgt ein Dreh-Element mit <code>rotateY(180deg)</code> und <code>backface-visibility: hidden</code>.</li>
+        <li><strong>Auto-Abschluss durch Simulation:</strong> <code>autoAbschlussPlan</code> spielt das Spiel auf einer Kopie bis zum Ende durch. Nur wenn das klappt, erscheint der Knopf, und der Plan wird Zug für Zug mit Pause abgespielt.</li>
+        <li><strong>Zeit und Speicher:</strong> Die Uhr misst mit <code>performance.now()</code> und pausiert über das Ereignis <code>visibilitychange</code>, wenn der Tab verborgen ist. Beim Laden wird der gespeicherte Stand streng geprüft: 52 verschiedene Karten, und der komplette Verlauf muss sich probeweise zurückspielen lassen.</li>
+      </ul>
+    </details></section>
+  </main>
+  <footer class="fuss"><div class="container fuss-in"><span>Browser-Arcade · Open Source</span><nav aria-label="Rechtliches"><a href="./impressum.html">Impressum</a><a href="./datenschutz.html">Datenschutz</a></nav></div></footer>
+  <script type="module" src="./game.js"></script>
+</body>
+</html>
