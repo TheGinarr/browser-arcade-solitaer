@@ -46,7 +46,7 @@
   display: block;
   margin-top: 2px;
   font-weight: 400;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--mut);
 }
 /* aria-pressed steuert Optik UND Barrierefreiheit zugleich */

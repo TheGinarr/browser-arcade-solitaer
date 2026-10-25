@@ -333,6 +333,67 @@ export function autoAbschlussPlan(z) {
 }
 
 /* ------------------------------------------------------------
+   Festgefahren? ("Keine Züge mehr" = verloren)
+   Breitensuche über alle Züge (auch Talon durchblättern, Karten
+   zwischen Spalten verschieben, von Ablagestapeln zurückholen).
+   Sobald irgendein erreichbarer Zustand FORTSCHRITT bringt (Karte
+   aufgedeckt, Karte aus Talon/Ablage ins Spiel, mehr auf den
+   Ablagestapeln), ist das Spiel nicht verloren. Bei sehr vielen
+   Zuständen (Grenze) gilt es vorsichtshalber als NICHT verloren.
+   ------------------------------------------------------------ */
+export function festgefahren(z, grenze = 6000) {
+  if (gewonnen(z)) return false;
+  const summe = (a) => a.reduce((x, y) => x + y, 0);
+  const v0 = summe(z.verdeckt);
+  const t0 = z.talon.length + z.ablage.length;
+  const f0 = z.fundamente.reduce((x, f) => x + f.length, 0);
+  const schluessel = (k) => JSON.stringify([k.spalten, k.verdeckt, k.fundamente, k.talon.length]);
+  const gesehen = new Set([schluessel(z)]);
+  const offen = [klon(z)];
+  const ziele = [];
+  for (let c = 0; c < 7; c++) ziele.push({ art: "spalte", i: c });
+  for (let f = 0; f < 4; f++) ziele.push({ art: "fundament", i: f });
+  while (offen.length) {
+    const k = offen.shift();
+    const zuege = [];
+    const tz = talonZug(k);
+    if (tz) zuege.push(tz);
+    const quellen = [{ art: "ablage", i: 0 }];
+    for (let f = 0; f < 4; f++) quellen.push({ art: "fundament", i: f });
+    for (const q of quellen)
+      for (const n of ziele) {
+        const zug = zugErmitteln(k, q, 1, n);
+        if (zug) zuege.push(zug);
+      }
+    for (let c = 0; c < 7; c++) {
+      const ab = ziehbarAb(k, c);
+      if (ab < 0) continue;
+      for (let n = 1; n <= k.spalten[c].length - ab; n++)
+        for (const ziel of ziele) {
+          const zug = zugErmitteln(k, { art: "spalte", i: c }, n, ziel);
+          if (zug) zuege.push(zug);
+        }
+    }
+    for (const zug of zuege) {
+      const neu = klon(k);
+      zugAnwenden(neu, zug);
+      if (
+        summe(neu.verdeckt) < v0 ||
+        neu.talon.length + neu.ablage.length < t0 ||
+        neu.fundamente.reduce((x, f) => x + f.length, 0) > f0
+      )
+        return false;
+      const sl = schluessel(neu);
+      if (gesehen.has(sl)) continue;
+      if (gesehen.size >= grenze) return false;
+      gesehen.add(sl);
+      offen.push(neu);
+    }
+  }
+  return true;
+}
+
+/* ------------------------------------------------------------
    Layout: wo steht welche Karte? (Einheiten: Kartenbreiten)
    ------------------------------------------------------------ */
 export function lageBerechnen(z) {
@@ -714,7 +775,7 @@ function knoepfeAktualisieren() {
 }
 
 function toplisteAktualisieren() {
-  el.toplisteTitel.textContent = `Lokale Top 3 · ${z.modus === 1 ? "1 Karte" : "3 Karten"}`;
+  el.toplisteTitel.textContent = `Topliste · ${z.modus === 1 ? "1 Karte" : "3 Karten"}`;
   toplisteAnzeigen(el.topliste, toplisteKey(z.modus), zeitText);
 }
 
@@ -804,6 +865,75 @@ function zugAusfuehren(zug) {
   hudZeichnen();
   knoepfeAktualisieren();
   if (gewonnen(z)) sieg();
+  else if (!sperre) {
+    autoAbschlussPruefen();
+    verlorenPruefen();
+  }
+}
+
+/** Alles aufgedeckt und allein lösbar → Karten wandern von selbst auf die Ablagestapel. */
+let autoTimer = 0;
+function autoAbschlussPruefen() {
+  clearTimeout(autoTimer);
+  if (beendet || sperre || !autoAbschlussPlan(z)) return;
+  autoTimer = setTimeout(
+    () => {
+      if (eingabe?.ziehen) return autoAbschlussPruefen(); // erst loslassen lassen
+      ansage("Gelöst! Die Karten wandern auf die Ablagestapel.");
+      autoAbschluss();
+    },
+    bewegungReduziert() ? 0 : 450,
+  );
+}
+
+/** Keine Züge mehr → verloren. Einmal pro Stellung melden; Rückgängig bleibt möglich. */
+let verlorenGemeldet = false;
+let verlorenTimer = 0;
+function verlorenPruefen() {
+  clearTimeout(verlorenTimer);
+  const meine = partieNr;
+  verlorenTimer = setTimeout(
+    () => {
+      if (meine !== partieNr || beendet || sperre || verlorenGemeldet) return;
+      if (eingabe?.ziehen) return verlorenPruefen();
+      if (!festgefahren(z)) return;
+      verlorenGemeldet = true;
+      uhrPausieren();
+      ansage("Verloren. Es ist kein sinnvoller Zug mehr möglich.");
+      document.getElementById("frage-dialog")?.remove();
+      const d = document.createElement("dialog");
+      d.className = "spiel-dialog";
+      d.id = "frage-dialog";
+      const h = document.createElement("h2");
+      h.textContent = "Verloren";
+      const p = document.createElement("p");
+      p.textContent = "Keine Züge mehr möglich – auch der Stapel bringt keine passende Karte mehr.";
+      const aktionen = document.createElement("div");
+      aktionen.className = "aktionen";
+      const neu = document.createElement("button");
+      neu.className = "knopf primaer";
+      neu.textContent = "Neues Spiel";
+      const zurueck = document.createElement("button");
+      zurueck.className = "knopf";
+      zurueck.textContent = "Zug zurücknehmen";
+      neu.addEventListener("click", () => d.close("neu"));
+      zurueck.addEventListener("click", () => d.close("zurueck"));
+      d.addEventListener("close", () => {
+        const w = d.returnValue;
+        d.remove();
+        if (meine !== partieNr) return;
+        if (w === "neu") neuesSpiel();
+        else if (w === "zurueck") rueckgaengig();
+        else uhrStarten();
+      });
+      aktionen.append(neu, zurueck);
+      d.append(h, p, aktionen);
+      document.body.append(d);
+      d.showModal();
+      neu.focus();
+    },
+    bewegungReduziert() ? 50 : 600,
+  );
 }
 
 /** Rückgängig: oberster Zug vom Stapel holen und umkehren – bis zum Spielstart möglich. */
@@ -811,6 +941,10 @@ function rueckgaengig() {
   if (sperre || beendet || eingabe?.ziehen || verlauf.length === 0) return;
   const zug = verlauf.pop();
   zugUmkehren(z, zug);
+  if (verlorenGemeldet) {
+    verlorenGemeldet = false;
+    if (gestartet) uhrStarten();
+  }
   auswahl = null;
   letzterTipp = null;
   speichern();
@@ -1267,6 +1401,7 @@ function neuesSpiel(modus = z ? z.modus : 1) {
   kaskadeStop();
   sperre = false;
   beendet = false;
+  verlorenGemeldet = false;
   z = neuesBlatt(modus);
   verlauf = [];
   zeitMs = 0;

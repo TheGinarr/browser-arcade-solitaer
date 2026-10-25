@@ -1,0 +1,224 @@
+/* ============================================================
+   KARTENTISCH · Filztisch mit Holzrand + eigener Kartenrücken
+   für Solitär, Blackjack, Higher-Lower (eingebunden per
+   .buehne.filztisch). Bleibt in Hell- und Dunkelmodus gleich
+   (ein "Gerät" – wie die Automaten). Nur CSS + eigenes SVG.
+   ============================================================ */
+.buehne.filztisch {
+  color-scheme: dark;
+  --txt: #f4efe0;
+  --mut: #c4dccb;
+  --panel: #0e3a28;
+  --panel2: #14503a;
+  --line: #3d8a63;
+  --gold: #e3b54f;
+  --filz: #136b45;
+  /* Neonfarben im Hellmodus nicht abdunkeln (Gerät bleibt gleich) */
+  --pink: #ff2d78;
+  --cyan: #00e5ff;
+  --lime: #9dff00;
+  --ak: #ffd23f;
+  position: relative;
+  color: var(--txt);
+  border: 0;
+  border-radius: 26px;
+  padding: 18px 14px;
+  /* Filz: Lichtkegel der Lampe + feine Faser + Grundfarbe */
+  background:
+    radial-gradient(120% 80% at 50% 30%, #ffffff1f, transparent 60%),
+    repeating-radial-gradient(circle at 30% 20%, #ffffff05 0 1px, transparent 1px 3px),
+    repeating-radial-gradient(circle at 70% 80%, #0000000a 0 1px, transparent 1px 4px),
+    radial-gradient(140% 100% at 50% 50%, var(--filz), #0a3a25);
+  /* Holzrand mit Polster (Leder) und Messing-Kante */
+  box-shadow:
+    inset 0 0 0 2px #0a2f1e,
+    inset 0 0 40px #0008,
+    0 0 0 3px #c9a24a,
+    0 0 0 5px #3a1f10,
+    0 0 0 14px #6b3b1c,
+    0 0 0 15px #9a5a2c,
+    0 0 0 16px #2a160b,
+    0 18px 40px #0009;
+  margin: 18px 16px 22px;
+}
+.buehne.filztisch > * {
+  position: relative;
+}
+
+/* Aufdruck im Filz (nur Blackjack) */
+.filz-aufdruck {
+  text-align: center;
+  font-family: var(--pixel);
+  font-size: clamp(0.5rem, 2.4vw, 0.7rem);
+  letter-spacing: 0.12em;
+  color: #e3b54fcc;
+  margin: 4px 0 10px;
+  pointer-events: none;
+}
+.filz-aufdruck span {
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: #f4efe099;
+  margin-top: 4px;
+}
+.filz-aufdruck::before,
+.filz-aufdruck::after {
+  content: "";
+  display: block;
+  height: 1px;
+  margin: 6px auto;
+  width: min(80%, 320px);
+  background: linear-gradient(90deg, transparent, #e3b54f88, transparent);
+}
+
+/* Leere Fächer (Solitär) als eingeprägte Linien im Filz */
+.filztisch .fach {
+  border-color: #ffffff40 !important;
+  background: #0003 !important;
+}
+
+/* ---------- Kartenrücken (alle drei Spiele) ---------- */
+.filztisch .seite.rueck,
+.filztisch .flaeche.hinten {
+  background: #8e1830 url("kartenruecken.svg") center / 100% 100% no-repeat !important;
+  border: 0 !important;
+  box-shadow: 0 1px 3px #0007 !important;
+}
+.filztisch .flaeche.hinten::after {
+  content: none !important;
+}
+/* Higher-Lower: Fragezeichen als Messingplakette auf dem Rücken */
+.filztisch .flaeche.hinten .frage,
+.filztisch .flaeche.hinten > * {
+  filter: drop-shadow(0 1px 2px #000a);
+}
+
+/* Kartenvorderseite: leicht cremefarben wie Karton */
+.filztisch .seite.vorn,
+.filztisch .flaeche.vorne {
+  background: linear-gradient(160deg, #fffdf6, #ece4d2) !important;
+}
+
+/* Chips als Jetons mit Kantenmarkierung (Blackjack) */
+.filztisch .chip {
+  --cf: #2b62c8;
+  border-radius: 50% !important;
+  aspect-ratio: 1;
+  min-width: 52px;
+  padding: 0 !important;
+  color: #fff !important;
+  font-weight: 800;
+  background:
+    radial-gradient(circle, var(--cf) 0 52%, #fff 53% 57%, var(--cf) 58%), var(--cf) !important;
+  border: 3px dashed #ffffffd0 !important;
+  box-shadow:
+    0 3px 0 #0007,
+    inset 0 0 0 2px #0004 !important;
+  transition: transform 0.15s;
+}
+.filztisch .chip[data-wert="10"] {
+  --cf: #2b62c8;
+}
+.filztisch .chip[data-wert="25"] {
+  --cf: #1f8a4c;
+}
+.filztisch .chip[data-wert="50"] {
+  --cf: #c2183a;
+}
+.filztisch .chip[data-wert="100"] {
+  --cf: #222;
+}
+.filztisch .chip[aria-pressed="true"] {
+  transform: translateY(-4px);
+  box-shadow:
+    0 7px 0 #0007,
+    0 0 0 3px var(--gold),
+    0 0 16px #e3b54f99 !important;
+}
+
+@media (max-width: 420px) {
+  .buehne.filztisch {
+    margin: 16px 14px 20px;
+    padding: 14px 8px;
+    border-radius: 20px;
+  }
+}
+
+/* Handy: schmaler Holzrand, damit die Karten größer werden (bessere Lesbarkeit) */
+@media (max-width: 420px) {
+  .buehne.filztisch {
+    margin: 10px 8px 16px;
+    box-shadow:
+      inset 0 0 0 2px #0a2f1e,
+      inset 0 0 30px #0008,
+      0 0 0 2px #c9a24a,
+      0 0 0 3px #3a1f10,
+      0 0 0 8px #6b3b1c,
+      0 0 0 9px #2a160b,
+      0 12px 28px #0009;
+  }
+  .filztisch .tisch {
+    --kw: calc((100vw - 80px) / 7.6);
+  }
+  .filztisch .ecke {
+    font-size: calc(var(--kw) * 0.33);
+    top: 2%;
+    left: 5%;
+  }
+  .filztisch-bj,
+  .filztisch .tisch-bj {
+    --kw: clamp(64px, 19vw, 96px);
+  }
+}
+
+/* Casino-Tasten auf dem Filz: Gold-Kuppel (Hauptaktion) bzw. schwarzer Lack mit Goldrand */
+.filztisch .knopf {
+  color: #f4efe0;
+  border: 1.5px solid #c9a24a;
+  border-radius: 999px;
+  background: linear-gradient(#3a3a40, #121214);
+  box-shadow:
+    0 4px 0 #5a420c,
+    0 6px 10px #0007,
+    inset 0 1px 0 #ffffff30;
+  text-shadow: 0 1px 1px #000;
+}
+.filztisch .knopf.primaer {
+  color: #3a2400;
+  border: 1.5px solid #8a5a00;
+  background: radial-gradient(120% 90% at 50% 10%, #fff3c0, #f2c94c 45%, #c9952a);
+  box-shadow:
+    0 4px 0 #6b4400,
+    0 6px 12px #0007,
+    inset 0 2px 0 #fff9;
+  text-shadow: 0 1px 0 #fff8;
+}
+.filztisch .knopf:hover {
+  border-color: #ffe08a;
+}
+.filztisch .knopf.primaer:hover {
+  box-shadow:
+    0 4px 0 #6b4400,
+    0 0 18px #ffd23f88,
+    inset 0 2px 0 #fff9;
+}
+.filztisch .knopf:active {
+  box-shadow:
+    0 1px 0 #5a420c,
+    inset 0 2px 4px #0006;
+}
+.filztisch .knopf.primaer:active {
+  box-shadow:
+    0 1px 0 #6b4400,
+    inset 0 2px 5px #0005;
+}
+.filztisch .knopf:disabled {
+  box-shadow: none;
+  filter: grayscale(0.6);
+}
+.filztisch .knopf:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}

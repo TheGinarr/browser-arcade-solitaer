@@ -3,11 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#07070f" />
+    <meta name="theme-color" content="#07070f" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f2f3f9" media="(prefers-color-scheme: light)" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./assets/style.css" />
+    <script src="./assets/thema.js?v=20261024"></script>
+    <link rel="stylesheet" href="./assets/style.css?v=20261024w" />
     <!-- Spielspezifische Styles (Tisch, Karten, Felder, Hervorhebungen) -->
-    <link rel="stylesheet" href="./spiel.css" />
+    <link rel="stylesheet" href="./spiel.css?v=20261024t" />
+    <link rel="stylesheet" href="./assets/kartentisch.css?v=20261024d" />
     <title>Solitär · Browser-Arcade</title>
     <meta
       name="description"
@@ -60,7 +63,7 @@
         </button>
       </div>
 
-      <div class="buehne">
+      <div class="buehne filztisch">
         <div class="tisch" id="tisch" role="group" aria-label="Spieltisch"></div>
       </div>
       <!-- Unsichtbare Live-Region: Screenreader hören hier Sieg und Rückgängig -->
@@ -87,7 +90,7 @@
           id="topliste-titel"
           style="font-family: var(--pixel); font-weight: 400; font-size: 0.85rem"
         >
-          Lokale Top 3
+          Topliste
         </h2>
         <div id="topliste"></div>
         <button class="knopf" id="reset" style="margin-top: 10px">Spielstand zurücksetzen</button>
@@ -222,6 +225,6 @@
         </nav>
       </div>
     </footer>
-    <script type="module" src="./game.js"></script>
+    <script type="module" src="./game.js?v=20261024v"></script>
   </body>
 </html>
